@@ -42,7 +42,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const theTetrominoes = [tetrominoL, tetrominoZ, tetrominoT, tetrominoO, tetrominoI];
 
     let currentPosition = 4;
-    let current = theTetrominoes[0][0];
+    let currentRotation = 0;
+
+    // randomly select a tetromino with first rotation
+    let random = Math.floor(Math.random()*theTetrominoes.length);
+    console.log(random);
+    console.log(currentRotation);
+    let current = theTetrominoes[random][currentRotation];
 
     console.log(theTetrominoes[0][0]);
 
