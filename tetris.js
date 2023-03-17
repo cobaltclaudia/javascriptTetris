@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(e.keyCode === 37){
             moveLeft();
         }else if(e.keyCode === 38){
-            // rotate
+            rotate();
         }else if (e.keyCode === 39){
             moveRight();
         }else if (e.keyCode === 40){
@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // move the tetrominos left, unless its at the edge or theres a blockage
+    // moveLeft
     function moveLeft(){
         undraw()
         const isAtLeftEdge = current.some(index => (currentPosition + index) % width === 0);
@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // move the tetrominos right, unless its at the edge or theres a blockage
+    // moveRight
     function moveRight(){
         undraw()
         const isAtRightEdge = current.some(index => (currentPosition + index) % width === -1);
@@ -131,6 +131,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
+    //rotate
+    function rotate(){
+        undraw();
+        currentRotation++;
+        if(currentRotation === current.length){
+            currentRotation = 0;
+        }
+        current = theTetrominoes[random][currentRotation];
+        draw();
+    }
 
 
 
