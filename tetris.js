@@ -1,10 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
     const grid = document.querySelector('.grid');
     let squares = Array.from(document.querySelectorAll('.grid div'));
-    const ScoreDisplay = document.querySelector('#score');
-    const StartBin = document.queryCommandIndeterm('#start-button');
+    const scoreDisplay = document.querySelector('#score');
+    const startButton = document.querySelector('#start-button');
     const width = 10;
     let nextRandom = 0;
+    let timerId;
+    let score = 0;
 
     console.log(squares);
 
@@ -68,20 +70,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // make the tetromino move down every second
-    timerId = setInterval(moveDown, 1000);
+//    timerId = setInterval(moveDown, 1000);
 
     // assign function to keycodes
-    function control(e){
-        if(e.keyCode === 37){
+    function control(e) {
+        if (e.keyCode === 37) {
             moveLeft();
-        }else if(e.keyCode === 38){
+        } else if (e.keyCode === 38) {
             rotate();
-        }else if (e.keyCode === 39){
+        } else if (e.keyCode === 39) {
             moveRight();
-        }else if (e.keyCode === 40){
+        } else if (e.keyCode === 40) {
             moveDown();
         }
     }
+
     document.addEventListener('keyup', control);
 
     function moveDown() {
@@ -102,40 +105,42 @@ document.addEventListener('DOMContentLoaded', () => {
             currentPosition = 4;
             draw();
             displayShape();
+            addScore();
+            gameOver();
         }
     }
 
     // moveLeft
-    function moveLeft(){
+    function moveLeft() {
         undraw()
         const isAtLeftEdge = current.some(index => (currentPosition + index) % width === 0);
 
-        if(!isAtLeftEdge) currentPosition-=1;
+        if (!isAtLeftEdge) currentPosition -= 1;
 
-        if(current.some(index => squares[currentPosition + index].classList.contains('taken'))){
-            currentPosition +=1;
+        if (current.some(index => squares[currentPosition + index].classList.contains('taken'))) {
+            currentPosition += 1;
         }
         draw();
     }
 
     // moveRight
-    function moveRight(){
+    function moveRight() {
         undraw()
-        const isAtRightEdge = current.some(index => (currentPosition + index) % width === width-1);
+        const isAtRightEdge = current.some(index => (currentPosition + index) % width === width - 1);
 
-        if(!isAtRightEdge) currentPosition+=1;
+        if (!isAtRightEdge) currentPosition += 1;
 
-        if(current.some(index => squares[currentPosition + index].classList.contains('taken'))){
-            currentPosition -=1;
+        if (current.some(index => squares[currentPosition + index].classList.contains('taken'))) {
+            currentPosition -= 1;
         }
         draw();
     }
 
     //rotate
-    function rotate(){
+    function rotate() {
         undraw();
         currentRotation++;
-        if(currentRotation === current.length){
+        if (currentRotation === current.length) {
             currentRotation = 0;
         }
         current = theTetrominoes[random][currentRotation];
@@ -150,16 +155,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // the tetromino without rotation
     const upNextTetrominoes = [
-        [1, displayWidth+1, displayWidth*2+1, 2], //tetrominoL
-        [0, displayWidth, displayWidth+1, displayWidth*2+1], //tetrominoZ
-        [1, displayWidth, displayWidth+1, displayWidth+2], //tetrominoT
-        [0, 1, displayWidth, displayWidth+1], //oTetromino
-        [1, displayWidth+1, displayWidth*2+1, displayWidth*3+1] //tetrominoI
+        [1, displayWidth + 1, displayWidth * 2 + 1, 2], //tetrominoL
+        [0, displayWidth, displayWidth + 1, displayWidth * 2 + 1], //tetrominoZ
+        [1, displayWidth, displayWidth + 1, displayWidth + 2], //tetrominoT
+        [0, 1, displayWidth, displayWidth + 1], //tetrominoO
+        [1, displayWidth + 1, displayWidth * 2 + 1, displayWidth * 3 + 1] //tetrominoI
     ]
 
 
     // display the shape in minigrid
-    function displayShape(){
+    function displayShape() {
         displaySquares.forEach(square => {
             // remove trace of tetromino
             square.classList.remove('tetromino');
@@ -170,6 +175,46 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
+    // add functionality to start/pause button
+    startButton.addEventListener('click', () => {
+        if (timerId) {
+            clearInterval(timerId);
+            timerId = null;
+        } else {
+            draw();
+            timerId = setInterval(moveDown, 1000);
+            nextRandom = Math.floor(Math.random() * theTetrominoes.length);
+            displayShape();
+        }
+    })
+
+
+    // add score
+    function addScore() {
+        for (let i = 0; i < 199; i += width) {
+            const row = [i, i+1, i+2, i+3, i+4, i+5, i+6, i+7, i+8, i+9];
+            if (row.every(index => squares[index].classList.contains('taken'))){
+                score += 10;
+                scoreDisplay.innerHTML = score;
+                row.forEach(index => {
+                    squares[index].classList.remove('taken');
+                    squares[index].classList.remove('tetromino');
+                })
+                const squaresRemoved = squares.splice(i, width);
+                squares = squaresRemoved.concat(squares);
+                squares.forEach(cell => grid.appendChild(cell));
+            }
+        }
+    }
+
+
+    // game over
+    function gameOver(){
+        if (current.some(index => squares[currentPosition +index].classList.contains('taken'))){
+            scoreDisplay.innerHTML = 'end';
+            clearInterval(timerId);
+        }
+    }
 
 
 })// addEventListener brackets
